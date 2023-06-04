@@ -7,9 +7,12 @@ let boardData = [
 
 // Define game variables
 let player = 1
+let gameOver = false
 
 // Pull in cells from DOM
 const cellElements = document.querySelectorAll('.cell')
+// pull in result text from DOM
+const resultElement = document.getElementById('result')
 
 // Add event listener
 cellElements.forEach((cell, index) => {
@@ -24,7 +27,7 @@ function placeMarker(index) {
     let col = index % 3
     let row = (index - col) / 3
     // check if the current cell is empty
-    if (boardData[row][col] == 0) {
+    if (boardData[row][col] == 0 && gameOver == false) {
         boardData[row][col] = player
         // change player
         player *= -1
@@ -61,10 +64,12 @@ function checkResult() {
         let colSum = boardData[0][i] + boardData[1][i] + boardData[2][i]
         if (rowSum == 3 || colSum == 3) {
             // player 1 wins
-            console.log('Player 1 wins')
+            endGame(1)
+            return
         } else if (rowSum == -3 || colSum == -3) {
             // player 2 wins
-            console.log('Player 2 wins')
+            endGame(2)
+            return
         }
     }
 
@@ -73,16 +78,51 @@ function checkResult() {
     let diagonalSum2 = boardData[0][2] + boardData[1][1] + boardData[2][0]
     if (diagonalSum1 == 3 || diagonalSum2 == 3) {
         // player 1 wins
-        console.log('Player 1 wins')
+        endGame(1)
+        return
     } else if (diagonalSum1 == -3 || diagonalSum2 == -3) {
         // player 2 wins
-        console.log('Player 2 wins')
+        endGame(2)
+        return
     }
 
     // check for a tie
     if (boardData[0].indexOf(0) == -1 &&
         boardData[1].indexOf(0) == -1 &&
         boardData[2].indexOf(0) == -1) {
-            console.log('Tie')
+            endGame(0)
+            return
         }
 }
+
+// function to end the game and display the result
+function endGame(winner) {
+    // trigger a game over
+    gameOver = true
+    // check if game ended in a tie
+    if (winner == 0) {
+        resultElement.innerText = "It's a tie!"
+    } else {
+        resultElement.innerText = `Player ${winner} wins!`
+    }
+}
+
+// restart game
+const restartButton = document.getElementById('restart')
+// add event listener to restart button
+restartButton.addEventListener("click", () => {
+    // reset game variables
+    boardData = [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0]
+    ]
+    player = 1
+    gameOver = false
+    // reset game board
+    cellElements.forEach(cell => {
+        cell.classList.remove('cross', 'circle')
+    })
+    // reset result text
+    resultElement.innerText = ""
+})
